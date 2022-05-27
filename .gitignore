@@ -5,7 +5,7 @@ Dockerfiles/dogstatsd/alpine/static/
 vendor/
 .vendor-new/
 bin/
-/dev/
+#/dev/
 __pycache__
 .pytest_cache
 venv/
