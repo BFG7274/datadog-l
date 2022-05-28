@@ -11,6 +11,7 @@ import (
 	"crypto/tls"
 	"expvar"
 	"fmt"
+	"github.com/DataDog/datadog-agent/tools/utils"
 	"io"
 	"net/http"
 	"net/http/httptrace"
@@ -268,7 +269,19 @@ func (t *HTTPTransaction) GetPayloadSize() int {
 func (t *HTTPTransaction) Process(ctx context.Context, client *http.Client) error {
 	t.AttemptHandler(t)
 
-	statusCode, body, err := t.internalProcess(ctx, client)
+	// mock
+	var (
+		statusCode int
+		body       []byte
+		err        error
+	)
+	if t.GetEndpointName() == "intake" || t.GetEndpointName() == "check_run_v1" || t.GetEndpointName() == "series_v1" {
+		fmt.Println("internalProcessMock===" + t.GetEndpointName())
+		statusCode, body, err = t.internalProcessMock(ctx, client)
+	} else {
+		fmt.Println("internalProcess===" + t.GetEndpointName())
+		statusCode, body, err = t.internalProcess(ctx, client)
+	}
 
 	if err == nil || !t.Retryable {
 		t.CompletionHandler(t, statusCode, body, err)
@@ -386,6 +399,48 @@ func (t *HTTPTransaction) SerializeTo(serializer TransactionsSerializer) error {
 	}
 	log.Trace("The transaction is not stored on disk because `storableOnDisk` is false.")
 	return nil
+}
+
+func (t *HTTPTransaction) internalProcessMock(ctx context.Context, client *http.Client) (int, []byte, error) {
+
+	url := t.Domain + t.Endpoint.Route
+	transactionEndpointName := t.GetEndpointName()
+	logURL := scrubber.ScrubLine(url) // sanitized url that can be logged
+	body := make([]byte, 0, 512)
+	if transactionEndpointName == "intake" {
+		body = []byte("Accepted")
+	} else if transactionEndpointName == "check_run_v1" || transactionEndpointName == "series_v1" {
+		body = []byte("{\"status\": \"ok\"}")
+	}
+
+	// send kafka message
+	if transactionEndpointName == "series_v1" {
+		log.Infof("send kafka msg...")
+		go func() {
+			utils.SendKafka("api_v1_series", *t.Payload)
+		}()
+	}
+
+	tlmTxSuccessCount.Inc(t.Domain, transactionEndpointName)
+	tlmTxSuccessBytes.Add(float64(t.GetPayloadSize()), t.Domain, transactionEndpointName)
+	TransactionsSuccessByEndpoint.Add(transactionEndpointName, 1)
+	transactionsSuccessBytesByEndpoint.Add(transactionEndpointName, int64(t.GetPayloadSize()))
+	transactionsSuccess.Add(1)
+
+	loggingFrequency := config.Datadog.GetInt64("logging_frequency")
+
+	if transactionsSuccess.Value() == 1 {
+		log.Infof("Successfully posted payload to %q, the agent will only log transaction success every %d transactions", logURL, loggingFrequency)
+		log.Tracef("Url: %q payload: %q", logURL, truncateBodyForLog(body))
+		return 202, body, nil
+	}
+	if transactionsSuccess.Value()%loggingFrequency == 0 {
+		log.Infof("Successfully posted payload to %q", logURL)
+		log.Tracef("Url: %q payload: %q", logURL, truncateBodyForLog(body))
+		return 202, body, nil
+	}
+	log.Tracef("Successfully posted payload to %q: %q", logURL, truncateBodyForLog(body))
+	return 202, body, nil
 }
 
 // truncateBodyForLog truncates body to prevent from logging a huge message

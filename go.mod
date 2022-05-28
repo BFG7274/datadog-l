@@ -408,7 +408,18 @@ require (
 	google.golang.org/grpc/credentials/insecure v0.0.0 // indirect
 )
 
-require github.com/Sirupsen/logrus v1.0.6 // indirect
+require (
+	github.com/Shopify/sarama v1.22.0
+	github.com/confluentinc/confluent-kafka-go v1.4.0
+)
+
+require (
+	github.com/Sirupsen/logrus v1.0.6 // indirect
+	github.com/eapache/go-resiliency v1.1.0 // indirect
+	github.com/eapache/go-xerial-snappy v0.0.0-20180814174437-776d5712da21 // indirect
+	github.com/eapache/queue v1.1.0 // indirect
+	github.com/pierrec/lz4 v2.5.2+incompatible // indirect
+)
 
 // Fixing a CVE on a transitive dep of k8s/etcd, should be cleaned-up once k8s.io/apiserver dep is removed (but double-check with `go mod why` that no other dep pulls it)
 replace github.com/dgrijalva/jwt-go => github.com/golang-jwt/jwt v3.2.1+incompatible
