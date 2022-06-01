@@ -1,4 +1,4 @@
-package utils
+﻿package utils
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 
 var (
 	producer sarama.SyncProducer
-	brokers  = []string{"192.168.0.13:9092", "192.168.0.199:9092", "192.168.0.146:9092"}
+	brokers  = []string{"192.168.0.105:9092", "192.168.0.139:9092", "192.168.0.229:9092"}
 )
 
 func init() {
