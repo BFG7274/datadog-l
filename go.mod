@@ -162,7 +162,7 @@ require (
 	github.com/shirou/w32 v0.0.0-20160930032740-bb4de0191aa4
 	github.com/skydive-project/go-debouncer v1.0.0
 	github.com/spf13/afero v1.8.2
-	github.com/spf13/cobra v1.4.0
+	github.com/spf13/cobra v1.5.0
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.7.1
 	github.com/syndtr/gocapability v0.0.0-20200815063812-42c35b437635
@@ -408,10 +408,7 @@ require (
 	google.golang.org/grpc/credentials/insecure v0.0.0 // indirect
 )
 
-require (
-	github.com/Shopify/sarama v1.22.0
-	github.com/confluentinc/confluent-kafka-go v1.4.0
-)
+require github.com/Shopify/sarama v1.22.0
 
 require (
 	github.com/Sirupsen/logrus v1.0.6 // indirect
