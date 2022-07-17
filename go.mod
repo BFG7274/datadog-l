@@ -95,10 +95,10 @@ require (
 	github.com/containerd/cgroups v1.0.2
 	github.com/containerd/containerd v1.5.10
 	github.com/containerd/typeurl v1.0.2
-	github.com/containernetworking/cni v0.8.1
+	github.com/containernetworking/cni v1.1.1 // indirect
 	github.com/coreos/go-semver v0.3.0
 	github.com/coreos/go-systemd v0.0.0-20190719114852-fd7a80b32e1f
-	github.com/cri-o/ocicni v0.2.0
+	github.com/cri-o/ocicni v0.4.0
 	github.com/cyphar/filepath-securejoin v0.2.3
 	github.com/davecgh/go-spew v1.1.1
 	github.com/docker/docker v17.12.0-ce-rc1.0.20200916142827-bd33bbf0497b+incompatible
@@ -265,7 +265,7 @@ require (
 	github.com/emicklei/go-restful-swagger12 v0.0.0-20201014110547-68ccff494617 // indirect
 	github.com/evanphx/json-patch v4.9.0+incompatible // indirect
 	github.com/felixge/httpsnoop v1.0.2 // indirect
-	github.com/fsnotify/fsnotify v1.5.1 // indirect
+	github.com/fsnotify/fsnotify v1.5.4 // indirect
 	github.com/ghodss/yaml v1.0.0 // indirect
 	github.com/go-kit/log v0.2.0 // indirect
 	github.com/go-logfmt/logfmt v0.5.1 // indirect
@@ -408,13 +408,11 @@ require (
 	google.golang.org/grpc/credentials/insecure v0.0.0 // indirect
 )
 
-require (
-	github.com/Shopify/sarama v1.22.0
-	github.com/confluentinc/confluent-kafka-go v1.4.0
-)
+require github.com/Shopify/sarama v1.22.0
 
 require (
 	github.com/Sirupsen/logrus v1.0.6 // indirect
+	github.com/containernetworking/plugins v1.1.1 // indirect
 	github.com/eapache/go-resiliency v1.1.0 // indirect
 	github.com/eapache/go-xerial-snappy v0.0.0-20180814174437-776d5712da21 // indirect
 	github.com/eapache/queue v1.1.0 // indirect
