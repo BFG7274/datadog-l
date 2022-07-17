@@ -7,16 +7,21 @@ package transaction
 
 import (
 	"bytes"
+	"compress/zlib"
 	"context"
 	"crypto/tls"
 	"expvar"
 	"fmt"
-	"github.com/DataDog/datadog-agent/tools/utils"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptrace"
+	"os"
 	"strconv"
+	"strings"
 	"time"
+
+	"github.com/DataDog/datadog-agent/tools/utils"
 
 	"github.com/DataDog/datadog-agent/pkg/config"
 	"github.com/DataDog/datadog-agent/pkg/telemetry"
@@ -70,6 +75,7 @@ var (
 		[]string{"domain", "endpoint", "error_type"}, "Count of transactions errored grouped by type of error")
 	tlmTxHTTPErrors = telemetry.NewCounter("transactions", "http_errors",
 		[]string{"domain", "endpoint", "code"}, "Count of transactions http errors per http code")
+	logEnable = false
 )
 
 // Trace is an httptrace.ClientTrace instance that traces the events within HTTP client requests.
@@ -150,6 +156,10 @@ func init() {
 	transactionsErrorsByType.Set("SentRequestErrors", &transactionsSentRequestErrors)
 	TransactionsExpvars.Set("HTTPErrors", &transactionsHTTPErrors)
 	TransactionsExpvars.Set("HTTPErrorsByCode", &transactionsHTTPErrorsByCode)
+	enableString := strings.ToLower(os.Getenv("AIOPS_LOG"))
+	if enableString == "true" {
+		logEnable = true
+	}
 }
 
 // Priority defines the priority of a transaction
@@ -401,8 +411,28 @@ func (t *HTTPTransaction) SerializeTo(serializer TransactionsSerializer) error {
 	return nil
 }
 
-func (t *HTTPTransaction) internalProcessMock(ctx context.Context, client *http.Client) (int, []byte, error) {
+func decompressPayload(payload []byte) (string, error) {
+	r, err := zlib.NewReader(bytes.NewReader(payload))
+	if err != nil {
+		return "", err
+	}
+	defer r.Close()
 
+	dst, err := ioutil.ReadAll(r)
+	if err != nil {
+		return "", err
+	}
+	return string(dst), nil
+}
+
+func (t *HTTPTransaction) internalProcessMock(ctx context.Context, client *http.Client) (int, []byte, error) {
+	if logEnable {
+		strPayload, err := decompressPayload(*t.Payload)
+		if err != nil {
+			strPayload = string(*t.Payload)
+		}
+		log.Infof("Mertics-Print: %v", strPayload)
+	}
 	url := t.Domain + t.Endpoint.Route
 	transactionEndpointName := t.GetEndpointName()
 	logURL := scrubber.ScrubLine(url) // sanitized url that can be logged

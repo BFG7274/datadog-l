@@ -2,26 +2,45 @@
 
 import (
 	"fmt"
+	"os"
+	"strings"
+
 	"github.com/DataDog/datadog-agent/pkg/util/log"
 	"github.com/Shopify/sarama"
 )
 
 var (
 	producer sarama.SyncProducer
-	brokers  = []string{"192.168.0.105:9092", "192.168.0.139:9092", "192.168.0.229:9092"}
 )
 
+var conf Conf
+
+type Conf struct {
+	Brokers string `yaml:"brokers"`
+	Group   string `yaml:"group"`
+	Topics  string `yaml:"topics"`
+	Enable  bool
+}
+
 func init() {
+	enableStr := strings.ToLower(os.Getenv("AIOPS_KAFKA"))
+	if enableStr == "" || enableStr == "false" {
+		return
+	}
+	conf.Enable = true
+	conf.Brokers = os.Getenv("AIOPS_KAFKA_BROKERS")
+
 	initProducer()
 }
 
 func initProducer() {
+
 	var err error
 	config := sarama.NewConfig()
 	config.Producer.RequiredAcks = sarama.WaitForLocal
 	config.Producer.Retry.Max = 3
 	config.Producer.Return.Successes = true
-	brokers := brokers
+	brokers := strings.Split(conf.Brokers, ",")
 	producer, err = sarama.NewSyncProducer(brokers, config)
 	if err != nil {
 		fmt.Printf("kafka生产者初始化失败 -> %v \n", err)
@@ -31,6 +50,9 @@ func initProducer() {
 }
 
 func SendKafka(topic string, msg []byte) {
+	if !conf.Enable {
+		return
+	}
 	//生产消息
 	_, offset, err := producer.SendMessage(&sarama.ProducerMessage{
 		Topic: topic,
@@ -40,5 +62,5 @@ func SendKafka(topic string, msg []byte) {
 		log.Warn("send kafka failed, err:", err)
 		return
 	}
-	log.Warn("send kafka success, offset: %v\n", offset)
+	log.Warnf("send kafka success, offset: %v\n", offset)
 }

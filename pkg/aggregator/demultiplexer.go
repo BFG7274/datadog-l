@@ -6,6 +6,8 @@
 package aggregator
 
 import (
+	"os"
+	"strconv"
 	"sync"
 	"time"
 
@@ -119,10 +121,17 @@ func DefaultDemultiplexerOptions(options *forwarder.Options) DemultiplexerOption
 	if options == nil {
 		options = forwarder.NewOptions(nil)
 	}
-
+	flushInterval := DefaultFlushInterval
+	if os.Getenv("AIOPS_FLUSH_INTERVAL") != "" {
+		v, err := strconv.Atoi(os.Getenv("AIOPS_FLUSH_INTERVAL"))
+		if err != nil {
+			flushInterval = DefaultFlushInterval
+		}
+		flushInterval = time.Duration(v) * time.Second
+	}
 	return DemultiplexerOptions{
 		SharedForwarderOptions:         options,
-		FlushInterval:                  DefaultFlushInterval,
+		FlushInterval:                  flushInterval,
 		UseEventPlatformForwarder:      true,
 		UseOrchestratorForwarder:       true,
 		UseContainerLifecycleForwarder: false,
