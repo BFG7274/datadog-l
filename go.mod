@@ -108,7 +108,7 @@ require (
 	github.com/elastic/go-libaudit v0.4.0
 	github.com/fatih/color v1.13.0
 	github.com/freddierice/go-losetup v0.0.0-20170407175016-fc9adea44124
-	github.com/go-ini/ini v1.66.4
+	github.com/go-ini/ini v1.67.0
 	github.com/go-ole/go-ole v1.2.6
 	github.com/go-openapi/spec v0.20.6
 	github.com/gobwas/glob v0.2.3
@@ -408,10 +408,7 @@ require (
 	google.golang.org/grpc/credentials/insecure v0.0.0 // indirect
 )
 
-require (
-	github.com/Shopify/sarama v1.22.0
-	github.com/confluentinc/confluent-kafka-go v1.4.0
-)
+require github.com/Shopify/sarama v1.22.0
 
 require (
 	github.com/Sirupsen/logrus v1.0.6 // indirect
