@@ -7,10 +7,10 @@ replace github.com/DataDog/datadog-agent/pkg/quantile => ../../quantile
 require (
 	github.com/DataDog/datadog-agent/pkg/quantile v0.36.0-rc.4
 	github.com/patrickmn/go-cache v2.1.0+incompatible
-	github.com/stretchr/testify v1.7.1
+	github.com/stretchr/testify v1.8.0
 	go.opentelemetry.io/collector/model v0.49.0
 	go.opentelemetry.io/collector/pdata v0.49.0
-	go.uber.org/zap v1.20.0
+	go.uber.org/zap v1.24.0
 )
 
 require (
@@ -22,5 +22,5 @@ require (
 	go.uber.org/atomic v1.7.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
-	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
